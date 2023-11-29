@@ -1,3 +1,4 @@
+import TextAreaWithCount from '../components/wordCount'
 import {createClient} from '@sanity/client'
 import groq from 'groq'
 
@@ -95,6 +96,10 @@ export default {
       name: 'description',
       type: 'text',
       title: 'Description',
+      components: {
+        field: TextAreaWithCount,
+      },
+      rows: 8,
       description: 'A description of the artifact, especially its relevance to the rail stories.',
       validation: (Rule) => Rule.required(),
       group: 'information',

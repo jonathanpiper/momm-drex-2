@@ -26,9 +26,10 @@ export default {
       name: 'body',
       type: 'text',
       title: 'Body',
-      // components: {
-      //   field: TextAreaWithCount
-      // },
+      components: {
+        field: TextAreaWithCount,
+      },
+      rows: 12,
       description: 'The body of the story.',
       validation: (Rule) => Rule.required(),
     },

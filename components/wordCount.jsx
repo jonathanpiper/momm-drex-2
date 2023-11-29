@@ -1,4 +1,4 @@
-import {Card, Text, Flex, TextArea, Stack} from '@sanity/ui'
+import {Text, TextArea, Stack} from '@sanity/ui'
 import {set, unset} from 'sanity'
 import styled from 'styled-components'
 import {useState, useEffect, useCallback} from 'react'
@@ -14,19 +14,16 @@ const TextAreaWithCount = (props) => {
     value = '',
     title,
     description,
+    schemaType,
     inputProps: {onChange},
   } = props
   const [wordCount, setWordCount] = useState(0)
   const [text, setText] = useState(value)
 
   useEffect(() => {
-    const words = text.split(' ')
-    let wordCount = 0
-    words.forEach((word) => {
-      if (word.trim() !== '') {
-        wordCount++
-      }
-    })
+    let removeChar = text.replace(/[^A-Za-z]\s+|[–—]/g, ' ')
+    let newWord = removeChar.trim().split(' ')
+    let wordCount = newWord.length
     setWordCount(wordCount)
   }, [text])
 
@@ -39,28 +36,29 @@ const TextAreaWithCount = (props) => {
   )
 
   return (
-    <Flex direction="column" height="fill">
-      <Card padding={0}>
-        <Stack space="3">
-          <Text as="label" size="1" weight="semibold">
-            {title}
-          </Text>
-          <Text size="1" muted="1">
-            {description}
-          </Text>
-          <StyledTextArea
-            value={value}
-            rows={18}
-            resize="vertical"
-            onChange={handleChange}
-            readOnly={false}
-          />
-          <Text size="1" muted="1">
-            Word count: {wordCount}
-          </Text>
-        </Stack>
-      </Card>
-    </Flex>
+    <Stack space="3">
+      <Text as="label" size="1" weight="semibold">
+        {title}
+      </Text>
+      {description ? (
+        <Text size="1" muted="1">
+          {description}
+        </Text>
+      ) : (
+        <></>
+      )}
+      <StyledTextArea
+        value={value}
+        rows={schemaType.rows || 12}
+        resize="vertical"
+        onChange={handleChange}
+        readOnly={false}
+      />
+      {/* {props.renderDefault({...props, handleChange})} */}
+      <Text size="1" muted="1">
+        Word count: {wordCount}
+      </Text>
+    </Stack>
   )
 }
 

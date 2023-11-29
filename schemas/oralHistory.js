@@ -1,3 +1,5 @@
+import TextAreaWithCount from '../components/wordCount'
+
 export default {
     name: 'oralHistory',
     type: 'document',
@@ -14,9 +16,12 @@ export default {
         name: 'summary',
         type: 'text',
         title: 'Summary',
+        components: {
+            field: TextAreaWithCount,
+          },
+          rows: 3,
         description: 'A summary of the clip. Include relevance to the rail content and biographical information about the interviewee, e.g. their job title and/or role.',
         validation: Rule => Rule.required(),
-        rows: 3
       },
       {
         title: 'Thumbnail Image',

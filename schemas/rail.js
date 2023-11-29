@@ -1,5 +1,6 @@
 import {createClient} from '@sanity/client'
 import groq from 'groq'
+import TextAreaWithCount from '../components/wordCount'
 
 export const client = createClient({
   projectId: '4udqswqp',
@@ -9,7 +10,7 @@ export const client = createClient({
 })
 
 const isUniqueIdentifier = (identifier, context) => {
-  if (!identifier) return true;
+  if (!identifier) return true
   const {document} = context
 
   const id = document._id.replace(/^drafts\./, '')
@@ -37,10 +38,14 @@ export default {
   preview: {
     select: {
       title: 'title',
-      subtitle: 'identifier'
-    }
+      subtitle: 'identifier',
+    },
   },
   groups: [
+    {
+      name: 'frontMatter',
+      title: 'Front Matter',
+    },
     {
       name: 'dwellScreen',
       title: 'Dwell Screen',
@@ -67,6 +72,7 @@ export default {
       title: 'Internal Identifier',
       name: 'identifier',
       type: 'string',
+      description: "The rail's identifier according to gallery and approximate order. There can only be one rail entry per identifier.",
       options: {
         list: [
           {title: 'Rail 1A1', value: 'rail1a1'},
@@ -98,13 +104,15 @@ export default {
       title: 'Title',
       name: 'title',
       type: 'string',
+      description: 'The title of the rail, matching the title of the corresponding display.',
       validation: (Rule) => Rule.required(),
-      group: 'dwellScreen',
+      group: 'frontMatter',
     },
     {
       title: 'Date Range',
       name: 'dateRange',
       type: 'string',
+      description: 'The time period covered by the rail.',
       hidden: ({document}) => {
         return document.identifier && document.identifier.indexOf('rail2') === -1
       },
@@ -115,19 +123,25 @@ export default {
             ? true
             : 'Date range must be in the format YYYY-YYYYs.'
         }),
-      group: 'dwellScreen',
+      group: 'frontMatter',
     },
     {
       title: 'Body',
       name: 'body',
       type: 'text',
+      description: 'The overarching story of the display. This should match or closely follow the printed panel.',
+      components: {
+        field: TextAreaWithCount,
+      },
+      rows: 12,
       validation: (Rule) => Rule.required(),
-      group: 'dwellScreen',
+      group: 'frontMatter',
     },
     {
       title: 'Dwell Screen Images',
       name: 'dwellImages',
       type: 'array',
+      description: 'Select up to four images that will be displayed when the rail is idle.',
       of: [
         {
           title: 'Dwell Image',
@@ -142,27 +156,32 @@ export default {
       title: 'Content',
       name: 'content',
       type: 'array',
+      description: 'Add content sections for stories, media, and/or artifacts.',
       of: [{type: 'stories'}, {type: 'media'}, {type: 'artifacts'}],
-      options: {
-      },
+      options: {},
       // validation: (Rule) => Rule.max(4),
-      validation: (Rule) => Rule.custom((parent) => {
-        if (parent.filter((c) => {
-          return c._type === 'media'
-        }).length > 1) {
-          return 'Only one Media section can be defined per rail.'
-        }
-        if (parent.filter((c) => {
-          return c._type === 'artifacts'
-        }).length > 1) {
-          return 'Only one Artifacts section can be defined per rail.'
-        }
-        if (parent.length > 4) {
-          return 'Only four Content sections can be defined per rail..'
-        }
-        return true
-      }),
-      group: 'content'
+      validation: (Rule) =>
+        Rule.custom((parent) => {
+          if (
+            parent.filter((c) => {
+              return c._type === 'media'
+            }).length > 1
+          ) {
+            return 'Only one Media section can be defined per rail.'
+          }
+          if (
+            parent.filter((c) => {
+              return c._type === 'artifacts'
+            }).length > 1
+          ) {
+            return 'Only one Artifacts section can be defined per rail.'
+          }
+          if (parent.length > 4) {
+            return 'Only four Content sections can be defined per rail..'
+          }
+          return true
+        }),
+      group: 'content',
     },
   ],
 }
