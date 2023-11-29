@@ -2,9 +2,7 @@ import {defineConfig, isDev} from 'sanity'
 import {visionTool} from '@sanity/vision'
 import {deskTool} from 'sanity/desk'
 import {schemaTypes} from './schemas'
-import {getStartedPlugin} from './plugins/sanity-plugin-tutorial'
-
-const devOnlyPlugins = [getStartedPlugin()]
+import {DistributeToRail} from './actions'
 
 export default defineConfig({
   name: 'default',
@@ -13,9 +11,15 @@ export default defineConfig({
   projectId: '4udqswqp',
   dataset: 'production',
 
-  plugins: [deskTool(), visionTool(), ...(isDev ? devOnlyPlugins : [])],
+  plugins: [deskTool(), visionTool()],
 
   schema: {
     types: schemaTypes,
+  },
+
+  document: {
+    actions: (prev, context) => {
+      return context.schemaType === 'rail' ? [DistributeToRail, ...prev] : prev
+    },
   },
 })
