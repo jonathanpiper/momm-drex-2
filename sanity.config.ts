@@ -19,7 +19,8 @@ export default defineConfig({
 
   document: {
     actions: (prev, context) => {
-      return context.schemaType === 'rail' ? [DistributeToRail, ...prev] : prev
+      return context.schemaType === 'rail' ? [...prev.slice(0, 1), DistributeToRail, ...prev.slice(1)] : prev
+      // [DistributeToRail, ...prev] : prev
     },
   },
 })
