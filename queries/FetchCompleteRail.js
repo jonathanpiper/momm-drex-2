@@ -11,6 +11,7 @@ export const FetchCompleteRail = groq`(
   },
   content[] {
     _type=='stories' => {
+      _type,
       title, 
       "icon": icon.asset->url,
       items[]->{
@@ -38,9 +39,14 @@ export const FetchCompleteRail = groq`(
       }
     },
     _type=='media' => {
+      _type,
       title, 
       "icon": icon.asset->url,
-      musicalMoments{clips[]->
+      "items": [
+      musicalMoments{
+        "_type": "musicalMoments",
+        "heroImage": heroImage.asset->url,
+        "items": clips[]->
         {
           title,
           artist,
@@ -48,9 +54,14 @@ export const FetchCompleteRail = groq`(
           credit,
           "thumbnail": thumbnail.asset->url,
           "clip": media.asset->url
-        }
+        },
+        summary
       },
-      oralHistories{clips[]->
+      oralHistories{
+        "_type": "oralHistories",
+        "heroImage": heroImage.asset->url,
+        "items": 
+        clips[]->
         {
           title,
           summary,
@@ -58,7 +69,11 @@ export const FetchCompleteRail = groq`(
           "clip": media.asset->url
         }
       },
-      factoryFootage{clips[]->
+      factoryFootage{
+        "_type": "factoryFootage",
+        "heroImage": heroImage.asset->url,
+        "items": 
+        clips[]->
         {
           title,
           caption,
@@ -66,8 +81,10 @@ export const FetchCompleteRail = groq`(
           "clip": media.asset->url
         }
       }
+      ],
     },
     _type=='artifacts' => {
+      _type,
       title, "icon": icon.asset->url,
       items[]->{
         description, 
