@@ -55,7 +55,7 @@ export const DistributeToRail: DocumentActionComponent = ({
                 console.log(response)
             })
         }
-    }, [loadedRailResult, middlewareActive])
+    }, [loadedRailResult, middlewareActive, railResult])
 
     return {
         label: 'Distribute to Rail',
