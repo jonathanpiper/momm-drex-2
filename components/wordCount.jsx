@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/react-in-jsx-scope */
 import {Text, TextArea, Stack} from '@sanity/ui'
 import {set, unset} from 'sanity'

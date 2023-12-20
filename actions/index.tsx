@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import groq from 'groq'
+// import groq from 'groq'
 import {createClient} from '@sanity/client'
 import {DocumentActionComponent} from 'sanity'
 import {DesktopIcon} from '@sanity/icons'
