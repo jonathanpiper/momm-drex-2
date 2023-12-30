@@ -99,7 +99,7 @@ export const DistributeToRail: DocumentActionComponent = ({
 
     useEffect(() => {
         if (railTransformed && middlewareActive) {
-            axios.post(`${middlewareURL}api/deploy`, {railResult}).then((response) => {
+            axios.post(`${middlewareURL}api/deploy`, {railIdentifier: railResult.identifier}).then((response) => {
                 console.log(response)
             })
         }
