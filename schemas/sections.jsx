@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import {createClient} from '@sanity/client'
 import groq from 'groq'
 import imageUrlBuilder from '@sanity/image-url'
@@ -41,6 +42,7 @@ const storySection = {
                     <img
                         style={{backgroundColor: 'grey'}}
                         src={builder.image(image.asset._ref).url()}
+                        alt="Icon"
                     />
                 ),
             }
@@ -83,6 +85,30 @@ const storySection = {
 }
 
 const mediaSection = {
+    fieldsets: [
+        {
+            name: 'standardCategories',
+            title: 'Standard Categories',
+            options: {
+                collapsible: true,
+                collapsed: false,
+            },
+            hidden: ({parent}) => {
+                return parent.custom
+            },
+        },
+        {
+            name: 'customCategories',
+            title: 'Custom Category',
+            options: {
+                collapsible: true,
+                collapsed: false,
+            },
+            hidden: ({parent}) => {
+                return !parent.custom
+            },
+        },
+    ],
     type: 'object',
     title: 'Media Section',
     name: 'media',
@@ -99,6 +125,7 @@ const mediaSection = {
                     <img
                         style={{backgroundColor: 'grey'}}
                         src={builder.image(image.asset._ref).url()}
+                        alt="Icon"
                     />
                 ),
             }
@@ -120,15 +147,27 @@ const mediaSection = {
             },
         },
         {
+            title: 'Does the media section use custom categories?',
+            name: 'custom',
+            type: 'boolean',
+            initialValue: false,
+        },
+        {
             type: 'object',
             title: 'Musical Moments',
             name: 'musicalMoments',
+            fieldset: 'standardCategories',
             fields: [
                 {
                     title: 'Hero Image',
                     name: 'heroImage',
                     type: 'image',
-                    validation: (Rule) => Rule.required()
+                    validation: (Rule) =>
+                        Rule.required().custom((field, parent) =>
+                            parent.custom && field === undefined
+                                ? 'A hero image is required.'
+                                : true,
+                        ),
                 },
                 {
                     title: 'Summary',
@@ -156,12 +195,13 @@ const mediaSection = {
             type: 'object',
             title: 'Factory Footage',
             name: 'factoryFootage',
+            fieldset: 'standardCategories',
             fields: [
                 {
                     title: 'Hero Image',
                     name: 'heroImage',
                     type: 'image',
-                    validation: (Rule) => Rule.required()
+                    validation: (Rule) => Rule.required(),
                 },
                 {
                     title: 'Clips',
@@ -184,12 +224,13 @@ const mediaSection = {
             type: 'object',
             title: 'Oral Histories',
             name: 'oralHistories',
+            fieldset: 'standardCategories',
             fields: [
                 {
                     title: 'Hero Image',
                     name: 'heroImage',
                     type: 'image',
-                    validation: (Rule) => Rule.required()
+                    validation: (Rule) => Rule.required(),
                 },
                 {
                     title: 'Clips',
@@ -202,6 +243,31 @@ const mediaSection = {
                         },
                     ],
                     validation: (Rule) => Rule.unique(),
+                },
+            ],
+        },
+        {
+            type: 'object',
+            title: 'Custom Clips',
+            name: 'customMediaClips',
+            fieldset: 'customCategories',
+            fields: [
+                {
+                    title: 'Clips',
+                    name: 'clips',
+                    type: 'array',
+                    of: [
+                        {
+                            type: 'reference',
+                            to: {type: 'customMediaClip'},
+                        },
+                    ],
+                    validation: (Rule) =>
+                        Rule.unique().custom((field, parent) =>
+                            !parent.custom && field === undefined
+                                ? 'This field must not be empty.'
+                                : true,
+                        ),
                 },
             ],
         },
@@ -225,6 +291,7 @@ const artifactSection = {
                     <img
                         style={{backgroundColor: 'grey'}}
                         src={builder.image(image.asset._ref).url()}
+                        alt="Icon"
                     />
                 ),
             }

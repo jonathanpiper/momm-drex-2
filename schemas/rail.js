@@ -119,8 +119,8 @@ export default {
             },
             validation: (Rule) =>
                 Rule.custom((range, context) => {
-                    return context.document.identifier.indexOf('rail2') !== -1 &&
-                        range.match(/[0-9]{4}-[0-9]{4}s/) !== null
+                    return context.document.identifier.indexOf('rail2') === -1 ? true :
+                        range.match(/[0-9]{4}s to [0-9]{4}s/) !== null
                         ? true
                         : 'Date range must be in the format YYYY-YYYYs.'
                 }),
@@ -143,7 +143,7 @@ export default {
             title: 'Dwell Screen Images',
             name: 'dwellImages',
             type: 'array',
-            description: 'Select up to four images that will be displayed when the rail is idle.',
+            description: 'Select up to six images that will be displayed when the rail is idle.',
             of: [
                 {
                     title: 'Dwell Image',
@@ -151,7 +151,7 @@ export default {
                     type: 'image',
                 },
             ],
-            validation: (Rule) => Rule.required().min(1).max(4),
+            validation: (Rule) => Rule.required().min(1).max(6),
             group: 'dwellScreen',
         },
         {

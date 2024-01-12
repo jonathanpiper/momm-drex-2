@@ -4,6 +4,7 @@ import {createClient} from '@sanity/client'
 import {DocumentActionComponent} from 'sanity'
 import {DesktopIcon} from '@sanity/icons'
 import {FetchCompleteRail} from '../queries/FetchCompleteRail'
+import {FetchRailConfig} from '../queries/FetchRailConfig'
 import axios, {AxiosError} from 'axios'
 import {Box, Flex, Spinner, Stack, Text} from '@sanity/ui'
 
@@ -39,6 +40,10 @@ export const DistributeToRail: DocumentActionComponent = ({
     const [middlewareActive, setMiddlewareActive] = useState<RequestStatus>(RequestStatus.Pending)
     const [railTransformed, setRailTransformed] = useState<RequestStatus>(RequestStatus.Pending)
     const [railTransformError, setRailTransformError] = useState<string>('')
+    const [configResult, setConfigResult] = useState<any>()
+    const [loadedConfigResult, setLoadedConfigResult] = useState<RequestStatus>(
+        RequestStatus.Pending,
+    )
 
     const getCompleteRail = async (id: string) => {
         const params = {
@@ -49,11 +54,16 @@ export const DistributeToRail: DocumentActionComponent = ({
             setRailResult(result)
             setLoadedRailResult(RequestStatus.Successful)
         })
+        client.fetch(FetchRailConfig).then((result) => {
+            console.log(result)
+            setConfigResult(result)
+            setLoadedConfigResult(RequestStatus.Successful)
+        })
     }
 
     const getMiddlewareStatus = async () => {
         axios
-            .get(`${middlewareURL}status`)
+            .get(`${middlewareURL}api/status`)
             .then((response) => {
                 console.log(response)
                 setMiddlewareActive(RequestStatus.Successful)
@@ -71,9 +81,9 @@ export const DistributeToRail: DocumentActionComponent = ({
     }
 
     useEffect(() => {
-        if (loadedRailResult && middlewareActive) {
+        if (loadedRailResult && loadedConfigResult && middlewareActive) {
             axios
-                .post(`${middlewareURL}api/transform`, {railResult})
+                .post(`${middlewareURL}api/transform`, {rail: railResult, config: configResult})
                 .then((response) => {
                     // console.log(response)
                     setRailTransformed(RequestStatus.Successful)
@@ -95,15 +105,15 @@ export const DistributeToRail: DocumentActionComponent = ({
                     }
                 })
         }
-    }, [loadedRailResult, middlewareActive, railResult])
+    }, [loadedRailResult, middlewareActive, railResult, configResult, loadedConfigResult])
 
-    useEffect(() => {
-        if (railTransformed && middlewareActive) {
-            axios.post(`${middlewareURL}api/deploy`, {railIdentifier: railResult.identifier}).then((response) => {
-                console.log(response)
-            })
-        }
-    }, [railTransformed, middlewareActive, railResult])
+    // useEffect(() => {
+    //     if (railTransformed && middlewareActive) {
+    //         axios.post(`${middlewareURL}api/deploy`, {railIdentifier: railResult.identifier}).then((response) => {
+    //             console.log(response)
+    //         })
+    //     }
+    // }, [railTransformed, middlewareActive, railResult])
 
     return {
         label: 'Distribute to Rail',
@@ -125,7 +135,14 @@ export const DistributeToRail: DocumentActionComponent = ({
                         {(() => {
                             switch (loadedRailResult) {
                                 case RequestStatus.Pending:
-                                    return (<><Flex direction="row"><Spinner />Fetching rail contents.</Flex></>)
+                                    return (
+                                        <>
+                                            <Flex direction="row">
+                                                <Spinner />
+                                                Fetching rail contents.
+                                            </Flex>
+                                        </>
+                                    )
                                 case RequestStatus.Failed:
                                     return 'Could not fetch rail contents.'
                                 case RequestStatus.Successful:
@@ -137,12 +154,21 @@ export const DistributeToRail: DocumentActionComponent = ({
                         {(() => {
                             switch (middlewareActive) {
                                 case RequestStatus.Pending:
-                                    return (<><Flex direction="row"><Spinner />Connecting to middleware.</Flex></>)
+                                    return (
+                                        <>
+                                            <Flex direction="row">
+                                                <Spinner />
+                                                Connecting to middleware.
+                                            </Flex>
+                                        </>
+                                    )
                                 case RequestStatus.Failed:
                                     <>
-                                    Middleware connection failed with this message:{' '}
-                                    <Box padding={3}><Text size={2}>{middlewareError}</Text></Box>
-                                </>
+                                        Middleware connection failed with this message:{' '}
+                                        <Box padding={3}>
+                                            <Text size={2}>{middlewareError}</Text>
+                                        </Box>
+                                    </>
                                 case RequestStatus.Successful:
                                     return 'Successfully connected to middleware. 🎉'
                             }
@@ -157,7 +183,9 @@ export const DistributeToRail: DocumentActionComponent = ({
                                     return (
                                         <>
                                             Rail definition failed with this message:{' '}
-                                            <Box padding={3}><Text size={2}>{railTransformError}</Text></Box>
+                                            <Box padding={3}>
+                                                <Text size={2}>{railTransformError}</Text>
+                                            </Box>
                                         </>
                                     )
                                 case RequestStatus.Successful:
