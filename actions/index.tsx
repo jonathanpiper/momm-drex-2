@@ -7,6 +7,7 @@ import {FetchCompleteRail} from '../queries/FetchCompleteRail'
 import {FetchRailConfig} from '../queries/FetchRailConfig'
 import axios, {AxiosError} from 'axios'
 import {Box, Flex, Spinner, Stack, Text} from '@sanity/ui'
+import {Pending, Success, Failed} from './RequestStates'
 
 export const client = createClient({
     projectId: '4udqswqp',
@@ -21,8 +22,7 @@ enum RequestStatus {
     Successful,
 }
 
-const middlewareURL = 'http://localhost:3000/'
-// const wsURL = 'ws://localhost:3000'
+const middlewareURL = 'http://192.168.168.180:3000/'
 
 export const DistributeToRail: DocumentActionComponent = ({
     id,
@@ -35,12 +35,12 @@ export const DistributeToRail: DocumentActionComponent = ({
 }) => {
     const [dialogOpen, setDialogOpen] = useState<boolean>(false)
     const [railResult, setRailResult] = useState<any>()
-    const [loadedRailResult, setLoadedRailResult] = useState<RequestStatus>(RequestStatus.Pending)
+    const [loadedRailResult, setLoadedRailResult] = useState<RequestStatus>()
     const [middlewareError, setMiddlewareError] = useState<string>('')
-    const [middlewareActive, setMiddlewareActive] = useState<RequestStatus>(RequestStatus.Pending)
-    const [railTransformed, setRailTransformed] = useState<RequestStatus>(RequestStatus.Pending)
+    const [middlewareActive, setMiddlewareActive] = useState<RequestStatus>()
+    const [railTransformed, setRailTransformed] = useState<RequestStatus>()
     const [railTransformError, setRailTransformError] = useState<string>('')
-    const [railTransferred, setRailTransferred] = useState<RequestStatus>(RequestStatus.Pending)
+    const [railTransferred, setRailTransferred] = useState<RequestStatus>()
     const [railTransferError, setRailTransferError] = useState<string>('')
     const [configResult, setConfigResult] = useState<any>()
     const [loadedConfigResult, setLoadedConfigResult] = useState<RequestStatus>(
@@ -64,13 +64,15 @@ export const DistributeToRail: DocumentActionComponent = ({
     }
 
     const getMiddlewareStatus = async () => {
+        setMiddlewareActive(RequestStatus.Pending)
         axios
             .get(`${middlewareURL}api/status`)
             .then((response) => {
-                console.log(response)
+                console.log('middleware', response)
                 setMiddlewareActive(RequestStatus.Successful)
             })
             .catch(function (error) {
+                console.log(error)
                 setMiddlewareActive(RequestStatus.Failed)
                 if (error.response) {
                     setMiddlewareError('Middleware was active but refused the connection.')
@@ -83,7 +85,12 @@ export const DistributeToRail: DocumentActionComponent = ({
     }
 
     useEffect(() => {
-        if (loadedRailResult && loadedConfigResult && middlewareActive) {
+        if (
+            loadedRailResult &&
+            loadedConfigResult &&
+            middlewareActive === RequestStatus.Successful
+        ) {
+            setRailTransformed(RequestStatus.Pending)
             axios
                 .post(`${middlewareURL}api/transform`, {rail: railResult, config: configResult})
                 .then((response) => {
@@ -110,7 +117,11 @@ export const DistributeToRail: DocumentActionComponent = ({
     }, [loadedRailResult, middlewareActive, railResult, configResult, loadedConfigResult])
 
     useEffect(() => {
-        if (railTransformed && middlewareActive) {
+        if (
+            railTransformed === RequestStatus.Successful &&
+            middlewareActive === RequestStatus.Successful
+        ) {
+            setRailTransferred(RequestStatus.Pending)
             axios
                 .post(`${middlewareURL}api/deploy`, {railIdentifier: railResult.identifier})
                 .then((response) => {
@@ -138,7 +149,6 @@ export const DistributeToRail: DocumentActionComponent = ({
 
     return {
         label: 'Distribute to Rail',
-        header: 'Distribute to Rail',
         icon: DesktopIcon,
         disabled: published === null,
         onHandle: () => {
@@ -149,105 +159,92 @@ export const DistributeToRail: DocumentActionComponent = ({
         onClose: onComplete,
         dialog: dialogOpen && {
             type: 'dialog',
+            header: 'Distribute to Rail',
             onClose: onComplete,
             content: (
                 <Stack space={5}>
-                    <Text size={2}>
-                        {(() => {
-                            switch (loadedRailResult) {
-                                case RequestStatus.Pending:
-                                    return (
-                                        <>
-                                            <Flex direction="row">
-                                                <Spinner />
-                                                Fetching rail contents.
-                                            </Flex>
-                                        </>
-                                    )
-                                case RequestStatus.Failed:
-                                    return 'Could not fetch rail contents.'
-                                case RequestStatus.Successful:
-                                    return `Successfully loaded rail contents.`
-                            }
-                        })()}
-                    </Text>
-                    <Text size={2}>
-                        {(() => {
-                            switch (middlewareActive) {
-                                case RequestStatus.Pending:
-                                    return (
-                                        <>
-                                            <Flex direction="row">
-                                                <Spinner />
-                                                Connecting to middleware.
-                                            </Flex>
-                                        </>
-                                    )
-                                case RequestStatus.Failed:
-                                    ;<>
-                                        Middleware connection failed with this message:{' '}
-                                        <Box padding={3}>
-                                            <Text size={2}>{middlewareError}</Text>
-                                        </Box>
-                                    </>
-                                case RequestStatus.Successful:
-                                    return 'Successfully connected to middleware. 🎉'
-                            }
-                        })()}
-                    </Text>
-                    <Text size={2}>
-                        {(() => {
-                            switch (railTransformed) {
-                                case RequestStatus.Pending:
-                                    return (
-                                        <>
-                                            <Flex direction="row">
-                                                <Spinner />
-                                                Creating rail definition and copying files to
-                                                server.
-                                            </Flex>
-                                        </>
-                                    )
-                                case RequestStatus.Failed:
-                                    return (
-                                        <>
-                                            Rail definition failed with this message:{' '}
-                                            <Box padding={3}>
-                                                <Text size={2}>{railTransformError}</Text>
-                                            </Box>
-                                        </>
-                                    )
-                                case RequestStatus.Successful:
-                                    return 'Rail definition created and files copied to server. 🤖'
-                            }
-                        })()}
-                    </Text>
-                    <Text size={2}>
-                        {(() => {
-                            switch (railTransferred) {
-                                case RequestStatus.Pending:
-                                    return (
-                                        <>
-                                            <Flex direction="row">
-                                                <Spinner />
-                                                Transferring files to rail computer. This may take several minutes, especially if the contents are being distributed for the first time.
-                                            </Flex>
-                                        </>
-                                    )
-                                case RequestStatus.Failed:
-                                    return (
-                                        <>
-                                            File transfer failed with this message:{' '}
-                                            <Box padding={3}>
-                                                <Text size={2}>{railTransferError}</Text>
-                                            </Box>
-                                        </>
-                                    )
-                                case RequestStatus.Successful:
-                                    return 'Files transfered to rail computer. 🚀'
-                            }
-                        })()}
-                    </Text>
+                    {(() => {
+                        switch (loadedRailResult) {
+                            case RequestStatus.Pending:
+                                return <Pending text={`Fetching rail contents.`}></Pending>
+                            case RequestStatus.Failed:
+                                return <Failed text={'Could not fetch rail contents.'}></Failed>
+                            case RequestStatus.Successful:
+                                return (
+                                    <Success text={`Successfully loaded rail contents.`}></Success>
+                                )
+                        }
+                    })()}
+                    {(() => {
+                        switch (middlewareActive) {
+                            case RequestStatus.Pending:
+                                return <Pending text={`Connecting to middleware.`}></Pending>
+                            case RequestStatus.Failed:
+                                return (
+                                    <Failed
+                                        text={`Middleware connection failed with this message:`}
+                                        error={middlewareError}
+                                    ></Failed>
+                                )
+                            case RequestStatus.Successful:
+                                return (
+                                    <Success
+                                        text={'Successfully connected to middleware. 🎉'}
+                                    ></Success>
+                                )
+                        }
+                    })()}
+                    {(() => {
+                        switch (railTransformed) {
+                            case RequestStatus.Pending:
+                                return (
+                                    <Pending
+                                        text={`Creating rail definition and copying files to
+                                        server.`}
+                                    ></Pending>
+                                )
+                            case RequestStatus.Failed:
+                                return (
+                                    <Failed
+                                        text={`Rail definition failed with this message:`}
+                                        error={railTransformError}
+                                    ></Failed>
+                                )
+                            case RequestStatus.Successful:
+                                return (
+                                    <Success
+                                        text={
+                                            'Rail definition created and files copied to server. 🤖'
+                                        }
+                                    ></Success>
+                                )
+                        }
+                    })()}
+                    {(() => {
+                        switch (railTransferred) {
+                            case RequestStatus.Pending:
+                                return (
+                                    <Pending
+                                        text={`Transferring files to rail computer. This may take
+                                            several minutes, especially if the contents are
+                                            being distributed for the first time.`}
+                                    ></Pending>
+                                )
+                            case RequestStatus.Failed:
+                                return (
+                                    <Failed
+                                        text={`File transfer failed with this message:`}
+                                        error={railTransferError}
+                                    ></Failed>
+                                )
+                            case RequestStatus.Successful:
+                                return (
+                                    <Success
+                                        text={'Files transfered to rail computer. 🚀'}
+                                    ></Success>
+                                )
+                        }
+                    })()}
                 </Stack>
             ),
         },
