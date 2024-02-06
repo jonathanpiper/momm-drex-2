@@ -5,6 +5,8 @@ import {storySection, mediaSection, artifactSection} from './sections'
 import musicalMoment from './musicalMoment'
 import factoryFootage from './factoryFootage'
 import oralHistory from './oralHistory'
+import customMediaClip from './customMediaClip'
+import railConfig from './railConfig'
 
 export const schemaTypes = [
   rail,
@@ -16,4 +18,6 @@ export const schemaTypes = [
   musicalMoment,
   factoryFootage,
   oralHistory,
+  customMediaClip,
+  railConfig
 ]
