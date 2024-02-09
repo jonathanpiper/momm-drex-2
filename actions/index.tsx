@@ -6,7 +6,7 @@ import {DesktopIcon} from '@sanity/icons'
 import {FetchCompleteRail} from '../queries/FetchCompleteRail'
 import {FetchRailConfig} from '../queries/FetchRailConfig'
 import axios, {AxiosError} from 'axios'
-import {Box, Flex, Spinner, Stack, Text} from '@sanity/ui'
+import {Stack} from '@sanity/ui'
 import {Pending, Success, Failed} from './RequestStates'
 
 export const client = createClient({

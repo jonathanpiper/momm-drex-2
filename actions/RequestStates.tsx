@@ -1,4 +1,4 @@
-import {Box, Flex, Spinner, Inline, Text} from '@sanity/ui'
+import {Box, Spinner, Inline, Text} from '@sanity/ui'
 import {CheckmarkIcon, ErrorOutlineIcon} from '@sanity/icons'
 
 export const Pending = (props: any) => {
