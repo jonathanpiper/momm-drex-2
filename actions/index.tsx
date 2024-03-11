@@ -12,7 +12,7 @@ import {Pending, Success, Failed} from './RequestStates'
 export const client = createClient({
     projectId: '4udqswqp',
     dataset: 'production',
-    useCdn: true,
+    useCdn: false,
     apiVersion: '2023-10-06',
 })
 
@@ -22,7 +22,10 @@ enum RequestStatus {
     Successful,
 }
 
-const middlewareURL = 'http://192.168.168.180:3000/'
+const railhubIP = '192.168.168.180'
+// const railhubIP = 'localhost'
+const middlewareURL = `http://${railhubIP}:3000/`
+const drexURL = `http://${railhubIP}:9000/drex`
 
 export const DistributeToRail: DocumentActionComponent = ({
     id,
@@ -127,6 +130,7 @@ export const DistributeToRail: DocumentActionComponent = ({
                 .then((response) => {
                     console.log(response)
                     setRailTransferred(RequestStatus.Successful)
+                    fetch(`${drexURL}/reload/${railResult.identifier}`)
                 })
                 .catch(function (error: Error | AxiosError) {
                     setRailTransferred(RequestStatus.Failed)
