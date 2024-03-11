@@ -131,7 +131,7 @@ export default {
             name: 'body',
             type: 'text',
             description:
-                'The overarching story of the display. This should match or closely follow the printed panel.',
+                'The overarching story of the display. This should match or closely follow the printed panel. Recommended word count: 150.',
             components: {
                 field: TextAreaWithCount,
             },

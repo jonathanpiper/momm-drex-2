@@ -22,8 +22,8 @@ enum RequestStatus {
     Successful,
 }
 
-// const railhubIP = '192.168.168.180'
-const railhubIP = 'localhost'
+const railhubIP = '192.168.168.180'
+// const railhubIP = 'localhost'
 const middlewareURL = `http://${railhubIP}:3000/`
 const drexURL = `http://${railhubIP}:9000/drex`
 

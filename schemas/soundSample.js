@@ -1,3 +1,5 @@
+// Sound Sample schema is defined but not available in Rail schema.
+
 export default {
     name: 'soundSample',
     type: 'document',
@@ -32,7 +34,6 @@ export default {
             description: 'The name(s) of the people playing in the clip.',
             validation: (Rule) => Rule.required(),
         },
-
         {
             title: 'Thumbnail Image',
             name: 'thumbnail',

@@ -21,7 +21,7 @@ const singletonTypes = new Set(['railConfig'])
 
 export default defineConfig({
     name: 'default',
-    title: 'MoMM DREX',
+    title: 'MoMM DREX v2',
 
     projectId: '4udqswqp',
     dataset: 'production',
