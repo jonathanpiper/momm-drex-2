@@ -6,6 +6,7 @@ export const FetchCompleteRail = groq`(
         identifier,
         title,
         body,
+        dateRange,
         "dwell": {
                 "images": dwellImages[].asset->url
         },
@@ -54,6 +55,7 @@ export const FetchCompleteRail = groq`(
                         artist,
                         instrument,
                         credit,
+                        "staticClip": media.static,
                         "thumbnail": thumbnail.asset->url,
                         "clip": media.asset->url
                     },

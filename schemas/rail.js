@@ -73,28 +73,11 @@ export default {
             name: 'identifier',
             type: 'string',
             description:
-                "The rail's identifier according to gallery and approximate order. There can only be one rail entry per identifier.",
-            options: {
-                list: [
-                    {title: 'Rail 1A1', value: 'rail1a1'},
-                    {title: 'Rail 1A2', value: 'rail1a2'},
-                    {title: 'Rail 1B', value: 'rail1b'},
-                    {title: 'Rail 1C', value: 'rail1c'},
-                    {title: 'Rail 1D', value: 'rail1d'},
-                    {title: 'Rail 1E', value: 'rail1e'},
-                    {title: 'Rail 1F', value: 'rail1f'},
-                    {title: 'Rail 1G', value: 'rail1g'},
-                    {title: 'Rail 2A', value: 'rail2a'},
-                    {title: 'Rail 2B', value: 'rail2b'},
-                    {title: 'Rail 2C', value: 'rail2c'},
-                    {title: 'Rail 2D', value: 'rail2d'},
-                    {title: 'Rail 2E', value: 'rail2e'},
-                    {title: 'Rail 4A', value: 'rail4a'},
-                    {title: 'Rail 4B', value: 'rail4b'},
-                ],
-            },
+                "The rail's identifier according to gallery and approximate order. There can only be one rail entry per identifier. Rail identifiers follow a specific pattern, e.g. 'rail1a1' and 'rail2b'.",
             validation: (Rule) =>
                 Rule.required().custom(async (value, context) => {
+                    const match = value.match(/^rail\d[a-z](\d|x)?$/)
+                    if (!match) return 'Rail identifiers MUST follow a specific pattern, with the word "rail", followed by the gallery number, followed by a letter indicating its position, followed by an optional number. Valid examples include "rail1a1", "rail2a", and "rail4b". The "tx" suffix is reserved specifically for spotlight rails.'
                     const isUnique = await isUniqueIdentifier(value, context)
                     if (!isUnique) return 'Identifier is already in use.'
                     return true

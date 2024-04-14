@@ -55,12 +55,10 @@ export const DistributeToRail: DocumentActionComponent = ({
             id: id,
         }
         client.fetch(FetchCompleteRail, params).then((result) => {
-            console.log(result)
             setRailResult(result)
             setLoadedRailResult(RequestStatus.Successful)
         })
         client.fetch(FetchRailConfig).then((result) => {
-            console.log(result)
             setConfigResult(result)
             setLoadedConfigResult(RequestStatus.Successful)
         })
@@ -71,11 +69,9 @@ export const DistributeToRail: DocumentActionComponent = ({
         axios
             .get(`${middlewareURL}api/status`)
             .then((response) => {
-                console.log('middleware', response)
                 setMiddlewareActive(RequestStatus.Successful)
             })
             .catch(function (error) {
-                console.log(error)
                 setMiddlewareActive(RequestStatus.Failed)
                 if (error.response) {
                     setMiddlewareError('Middleware was active but refused the connection.')
@@ -97,12 +93,10 @@ export const DistributeToRail: DocumentActionComponent = ({
             axios
                 .post(`${middlewareURL}api/transform`, {rail: railResult, config: configResult})
                 .then((response) => {
-                    // console.log(response)
                     setRailTransformed(RequestStatus.Successful)
                 })
                 .catch(function (error: Error | AxiosError) {
                     setRailTransformed(RequestStatus.Failed)
-                    console.log(error)
                     if (axios.isAxiosError(error)) {
                         if (error.response) {
                             console.log(error.response)
@@ -128,7 +122,6 @@ export const DistributeToRail: DocumentActionComponent = ({
             axios
                 .post(`${middlewareURL}api/deploy`, {railIdentifier: railResult.identifier})
                 .then((response) => {
-                    console.log(response)
                     setRailTransferred(RequestStatus.Successful)
                     fetch(`${drexURL}/reload/${railResult.identifier}`)
                 })

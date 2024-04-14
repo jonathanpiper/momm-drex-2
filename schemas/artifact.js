@@ -111,7 +111,8 @@ export default {
         },
         {
             name: 'credit',
-            type: 'string',
+            type: 'text',
+            rows: 2,
             title: 'Credit Line',
             description: "The artifact's donor or lender.",
             validation: (Rule) => Rule.required(),
@@ -121,7 +122,7 @@ export default {
             title: 'Artifact Images',
             name: 'artifactImages',
             type: 'array',
-            description: 'Between one and four images of the artifact.',
+            description: 'At least one image of the artifact.',
             options: {
                 layout: 'grid',
             },
@@ -132,7 +133,7 @@ export default {
                     type: 'image',
                 },
             ],
-            validation: (Rule) => Rule.required().min(1).max(4),
+            validation: (Rule) => Rule.required().min(1),
             group: 'images',
         },
     ],
