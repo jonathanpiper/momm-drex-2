@@ -1,9 +1,7 @@
-# Sanity Clean Content Studio
+# Content Management System for Museum of Making Music
 
-Congratulations, you have now installed the Sanity Content Studio, an open source real-time content editing environment connected to the Sanity backend.
+## Built on Sanity
+Uses Sanity to present a modern, clean interface for content management.
 
-Now you can do the following things:
-
-- [Read “getting started” in the docs](https://www.sanity.io/docs/introduction/getting-started?utm_source=readme)
-- [Join the community Slack](https://slack.sanity.io/?utm_source=readme)
-- [Extend and build plugins](https://www.sanity.io/docs/content-studio/extending?utm_source=readme)
+## Custom Distribution Mechanism
+"Distribute to Rail" Document Action interacts with on-prem middleware ("Optimus") for distributing content to local computers at interactive displays.
